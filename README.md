@@ -23,7 +23,7 @@ Serve locally:
 npm run serve
 ```
 
-Then open `http://localhost:5173`.
+Then open `http://localhost:5173`
 
 ## Update the gallery later/
 
