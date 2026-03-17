@@ -1,8 +1,8 @@
 {
-  "name": "perrysgifs",
+  "name": "ozmeep-gifs",
   "private": true,
   "version": "1.0.0",
-  "description": "Perry's GIF Vault (static site)",
+  "description": "ozmeep’s gifs (static site)",
   "type": "module",
   "scripts": {
     "fetch": "node scripts/fetch-gifs.mjs",

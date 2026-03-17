@@ -1,13 +1,15 @@
-# Perry's GIF Vault
+# ozmeep’s gifs
 
-Static HTML/CSS/JS gallery that displays GIFs from the **perrysgifs** GIPHY channel.
+Static HTML/CSS/JS gallery that displays GIFs from the **ozmeep** GIPHY channel.
 
-> Turning random moments into GIFs you'll probably overuse. Here for the laughs, the reactions, and the perfectly timed loops.
+> Reactions, laughs, and perfectly timed loops — curated by ozmeep.
 
 ## How it works
 
 GitHub Pages is static, and browsers can't fetch `giphy.com` HTML due to CORS.  
 So this repo snapshots the channel at build time into `data/gifs.json`.
+
+For a complete, reliable snapshot of **all** GIFs, configure a `GIPHY_API_KEY` as a GitHub Actions secret. The key is only used server-side in the scheduled workflow (never in the frontend).
 
 ## Local run
 
@@ -25,7 +27,7 @@ npm run serve
 
 Then open `http://localhost:5173`
 
-## Update the gallery later/
+## Update the gallery later
 
 Run:
 
@@ -37,7 +39,7 @@ Commit the updated `data/gifs.json`.
 
 ## GitHub Pages deploy
 
-1. Create a repo named **`perrysgifs`** or similar.
+1. Create a repo named **`ozmeep`** or similar.
 2. Push this project to that repo.
 3. In GitHub repo settings → **Pages**:
    - **Build and deployment**: "Deploy from a branch"
@@ -45,4 +47,4 @@ Commit the updated `data/gifs.json`.
 
 ---
 
-**Perry's GIF Vault** — Your daily dose of perfectly timed reactions.
+**ozmeep’s gifs** — Your daily dose of perfectly timed reactions.

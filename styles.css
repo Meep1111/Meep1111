@@ -1,4 +1,4 @@
-/* Perry's GIFs — warm editorial, no gradients */
+/* ozmeep’s gifs — purple editorial, no gradients */
 :root {
   --bg: #f5f1eb;
   --bg2: #ebe6de;
@@ -6,8 +6,8 @@
   --ink: #1a1814;
   --ink-muted: #5c564d;
   --ink-faint: #8c857a;
-  --accent: #c45c3e;
-  --accent-hover: #a84d32;
+  --accent: #6d28d9;
+  --accent-hover: #5b21b6;
   --border: #e0dad2;
   --radius: 6px;
   --radius-lg: 12px;
@@ -25,8 +25,8 @@ html[data-theme="dark"] {
   --ink: #f5f1eb;
   --ink-muted: #b8b0a4;
   --ink-faint: #7a7368;
-  --accent: #e07d5a;
-  --accent-hover: #f09272;
+  --accent: #a78bfa;
+  --accent-hover: #c4b5fd;
   --border: #3d3830;
   --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
   --shadow-hover: 0 8px 28px rgba(0, 0, 0, 0.45);

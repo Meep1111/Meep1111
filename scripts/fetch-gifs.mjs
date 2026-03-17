@@ -1,5 +1,5 @@
 /**
- * Build-time snapshot of GIFs from https://giphy.com/channel/perrysgifs
+ * Build-time snapshot of GIFs from https://giphy.com/channel/ozmeep
  *
  * Why: GitHub Pages is static; fetching giphy.com HTML in-browser is blocked by CORS.
  * So we fetch the channel page during build, extract GIF IDs/URLs, and write data/gifs.json.
@@ -7,14 +7,20 @@
 
 import { writeFile } from "node:fs/promises";
 
-const CHANNEL_URL = "https://giphy.com/channel/perrysgifs";
+const CHANNEL_URL = "https://giphy.com/channel/ozmeep";
 const MAX_PAGES = 10;
+const USERNAME = "ozmeep";
+const API_KEY = process.env.GIPHY_API_KEY || "";
+const API_LIMIT = 50;
 
 function cleanUrl(raw) {
   return raw
     .trim()
-    .replace(/[),.]+$/, "") // trailing tokens in inline CSS/JS
-    .replace(/&amp;/g, "&");
+    .replace(/&amp;/g, "&")
+    // Remove query/hash junk that often appears in embedded HTML/JSON
+    .replace(/[?#].*$/, "")
+    // Trailing tokens in inline CSS/JS or JSON strings
+    .replace(/[),.]+$/, "");
 }
 
 function uniqueKeepOrder(items) {
@@ -71,12 +77,67 @@ function mediaUrls(id) {
   };
 }
 
+async function fetchAllViaApi() {
+  if (!API_KEY) return null;
+
+  console.log(`Fetching via GIPHY API for @${USERNAME}`);
+  const all = [];
+  let offset = 0;
+  let total = Infinity;
+
+  while (offset < total && offset <= 4999) {
+    const url = new URL("https://api.giphy.com/v1/gifs/search");
+    url.searchParams.set("api_key", API_KEY);
+    url.searchParams.set("q", `@${USERNAME}`);
+    url.searchParams.set("limit", String(API_LIMIT));
+    url.searchParams.set("offset", String(offset));
+
+    const res = await fetch(url.toString(), {
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) throw new Error(`GIPHY API failed (${res.status})`);
+
+    const json = await res.json();
+    const batch = Array.isArray(json?.data) ? json.data : [];
+    const pageUrls = batch
+      .map((g) => String(g?.url || ""))
+      .filter(Boolean)
+      .map(cleanUrl);
+
+    const ids = batch.map((g) => String(g?.id || "")).filter(Boolean);
+    const urlById = new Map();
+    for (let i = 0; i < Math.min(ids.length, pageUrls.length); i++) {
+      if (ids[i] && pageUrls[i]) urlById.set(ids[i], pageUrls[i]);
+    }
+
+    for (const id of ids) {
+      const pageUrl = urlById.get(id) || `https://giphy.com/gifs/${id}`;
+      all.push({
+        id,
+        pageUrl,
+        title: titleFromGifPageUrl(pageUrl),
+        ...mediaUrls(id),
+      });
+    }
+
+    const pagination = json?.pagination || {};
+    const count = Number(pagination.count || batch.length || 0);
+    const totalCount = Number(pagination.total_count || all.length);
+    total = Number.isFinite(totalCount) && totalCount > 0 ? totalCount : all.length;
+
+    if (count <= 0) break;
+    offset += count;
+  }
+
+  return all.length ? uniqueKeepOrder(all.map((g) => JSON.stringify(g))).map((s) => JSON.parse(s)) : null;
+}
+
 async function fetchChannelPage(page) {
   const url = page === 1 ? CHANNEL_URL : `${CHANNEL_URL}?page=${page}`;
   console.log(`Fetching channel page ${page}: ${url}`);
   const res = await fetch(url, {
     headers: {
-      "User-Agent": "perrysgifs-build/1.0 (+https://github.com/)",
+      "User-Agent": "ozmeep-build/1.0 (+https://github.com/)",
       Accept: "text/html",
     },
   });
@@ -89,6 +150,22 @@ async function fetchChannelPage(page) {
 }
 
 async function main() {
+  const apiGifs = await fetchAllViaApi().catch((e) => {
+    console.warn(`API fetch failed; falling back to HTML scrape. ${e?.message || e}`);
+    return null;
+  });
+  if (apiGifs && apiGifs.length) {
+    const out = {
+      channel: CHANNEL_URL,
+      builtAt: new Date().toISOString(),
+      count: apiGifs.length,
+      gifs: apiGifs,
+    };
+    await writeFile(new URL("../data/gifs.json", import.meta.url), JSON.stringify(out, null, 2));
+    console.log(`Wrote data/gifs.json with ${apiGifs.length} GIFs (API).`);
+    return;
+  }
+
   const allPageUrls = [];
 
   for (let page = 1; page <= MAX_PAGES; page++) {
