@@ -1,5 +1,5 @@
 /**
- * Build-time snapshot of GIFs from https://giphy.com/channel/ozmeep
+ * Build-time snapshot of GIFs from https://giphy.com/channel/ozmepgifs
  *
  * Why: GitHub Pages is static; fetching giphy.com HTML in-browser is blocked by CORS.
  * So we fetch the channel page during build, extract GIF IDs/URLs, and write data/gifs.json.
@@ -7,9 +7,9 @@
 
 import { writeFile } from "node:fs/promises";
 
-const CHANNEL_URL = "https://giphy.com/channel/ozmeep";
+const CHANNEL_URL = "https://giphy.com/channel/ozmepgifs";
 const MAX_PAGES = 10;
-const USERNAME = "ozmeep";
+const USERNAME = "ozmepgifs";
 const API_KEY = process.env.GIPHY_API_KEY || "";
 const API_LIMIT = 50;
 
